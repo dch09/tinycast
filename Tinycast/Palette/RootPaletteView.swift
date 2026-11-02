@@ -1424,8 +1424,50 @@ struct RootPaletteView: View {
 
     /// For the chords the panel hands over as tokens, which work while a menu is open.
     private func performShortcut(_ shortcut: PaletteShortcut) {
-        let screen = screen
+        if case .favoriteSlot(let slot) = shortcut {
+            performResultSlot(slot)
+            return
+        }
         _ = screen.perform(shortcut, at: selection(in: screen))
+    }
+
+    /// ⌘-digit belongs to the list on screen. A screen's own number shortcut never sees it.
+    private func performResultSlot(_ slot: Int) {
+        guard let ordinal = ResultSlots.ordinal(forSlot: slot, emptyRoot: vm.emptyRootResultSlots)
+        else { return }
+        if menuOpen {
+            activateMenuSlot(ordinal)
+        } else if vm.isControlListOpen {
+            vm.noteControlListSlot(ordinal)
+        } else {
+            activateScreenSlot(ordinal)
+        }
+    }
+
+    private func activateMenuSlot(_ ordinal: Int) {
+        guard let content = menuContent,
+            let index = ResultSlots.rowIndex(
+                forSlot: ordinal, count: content.rowCount, isSelectable: content.isSelectable)
+        else { return }
+        menuSelection = index
+        activateMenuItem(index)
+    }
+
+    private func activateScreenSlot(_ ordinal: Int) {
+        let screen = screen
+        let limit = ResultSlots.limit(emptyRoot: vm.emptyRootResultSlots)
+        guard let index = ResultSlots.rowIndex(
+            forSlot: ordinal, limit: limit, count: screen.rows.count,
+            isSelectable: { screen.hasPrimaryAction(at: $0) }),
+            screen.isPrimaryActionEnabled(at: index)
+        else { return }
+        vm.selection = index
+        if !isCollapsed, let incomplete = headerAccessory?.firstIncompleteField {
+            argumentFocused = incomplete
+            searchFocused = false
+            return
+        }
+        screen.activate(at: index)
     }
 
     /// A ring hop leaves a step back — except the hop closing the ring on the launcher, its root.

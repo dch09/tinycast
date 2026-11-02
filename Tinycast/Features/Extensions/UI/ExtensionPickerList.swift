@@ -67,6 +67,7 @@ struct ExtensionPickerList: View {
                                 icon: ExtensionImage.resolve(
                                     item.iconValue, assetsPath: assetsPath, isDark: isDark),
                                 checked: chosen.contains(item.value),
+                                slot: palette.menuSlotDigit(atSelectable: index),
                                 selected: index == selection,
                                 onActivate: { onSelect(index) }
                             )

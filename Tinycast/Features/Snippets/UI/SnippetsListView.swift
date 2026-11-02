@@ -18,8 +18,9 @@ struct SnippetsList: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(results) { record in
+                    ForEach(Array(results.enumerated()), id: \.element.id) { ordinal, record in
                         SnippetRow(record: record, selected: record.id == selectedID)
+                            .resultSlotOrdinal(ordinal, overlay: false)
                             .selectionFrame(record.id == selectedID)
                             .contentShape(Rectangle())
                             .onTapGesture { onSelect(record) }
@@ -52,6 +53,7 @@ private struct SnippetRow: View {
     @Environment(HotKeyManager.self) private var hotKeys
     let record: StoredSnippet
     let selected: Bool
+    @Environment(\.resultSlotCharacter) private var slot
     @State private var hovered = false
 
     private var fill: Color {
@@ -69,16 +71,20 @@ private struct SnippetRow: View {
                 .font(metrics.typography.rowTitle)
                 .lineLimit(1)
             Spacer(minLength: metrics.spacing.lg)
-            if let keyword = record.snippet.keyword, !keyword.isEmpty {
-                Text(keyword)
-                    .font(metrics.typography.keyCap)
-                    .foregroundStyle(Theme.Colors.textTertiary)
-                    .lineLimit(1)
-            }
-            if let keycaps = hotKeys.binding(for: .snippet(id: record.id))?.keycaps {
-                HStack(spacing: metrics.spacing.xxs) {
-                    ForEach(Array(keycaps.enumerated()), id: \.offset) { _, cap in
-                        KeyCapChip(text: cap, style: .outline)
+            ResultSlotTrail(slot: slot) {
+                HStack(spacing: metrics.spacing.sm) {
+                    if let keyword = record.snippet.keyword, !keyword.isEmpty {
+                        Text(keyword)
+                            .font(metrics.typography.keyCap)
+                            .foregroundStyle(Theme.Colors.textTertiary)
+                            .lineLimit(1)
+                    }
+                    if let keycaps = hotKeys.binding(for: .snippet(id: record.id))?.keycaps {
+                        HStack(spacing: metrics.spacing.xxs) {
+                            ForEach(Array(keycaps.enumerated()), id: \.offset) { _, cap in
+                                KeyCapChip(text: cap, style: .outline)
+                            }
+                        }
                     }
                 }
             }

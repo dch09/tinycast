@@ -70,6 +70,7 @@ struct ExtensionPickerRow: View {
     var detail: String?
     var icon: ExtensionImage.Resolved?
     var checked = false
+    var slot: Character?
     let selected: Bool
     let onActivate: () -> Void
 
@@ -84,11 +85,13 @@ struct ExtensionPickerRow: View {
                     .font(metrics.typography.menuRow)
                     .lineLimit(1)
                 Spacer(minLength: metrics.spacing.sm)
-                if let detail {
-                    Text(detail)
-                        .font(metrics.typography.menuShortcut)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
+                ResultSlotTrail(slot: slot) {
+                    if let detail {
+                        Text(detail)
+                            .font(metrics.typography.menuShortcut)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
                 }
                 if checked {
                     Image(systemName: "checkmark")

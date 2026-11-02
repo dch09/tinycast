@@ -85,3 +85,39 @@ struct KeyCapChip: View {
             }
     }
 }
+
+/// The chord and the trailing label share one slot, so the title does not jump.
+struct ResultSlotTrail<Accessory: View>: View {
+    @Environment(\.metrics) private var metrics
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(PaletteState.self) private var palette
+    let slot: Character?
+    var scale: KeyCapChip.Scale = .standard
+    @ViewBuilder var accessory: () -> Accessory
+
+    private var shown: Bool { slot != nil && palette.commandHeld }
+
+    var body: some View {
+        ZStack(alignment: .trailing) {
+            accessory()
+                .opacity(shown ? 0 : 1)
+                .accessibilityHidden(shown)
+            if let slot, shown {
+                HStack(spacing: metrics.spacing.xxs) {
+                    KeyCapChip(text: "⌘", style: .outline, scale: scale)
+                    KeyCapChip(text: String(slot), style: .outline, scale: scale)
+                }
+                .transition(reveal)
+                .accessibilityHidden(true)
+            }
+        }
+        .animation(reduceMotion ? nil : .easeOut(duration: Theme.Duration.hover), value: shown)
+        .allowsHitTesting(false)
+    }
+
+    /// A short slide with the fade. Reduce Motion keeps the fade and drops the move.
+    private var reveal: AnyTransition {
+        guard !reduceMotion else { return .opacity }
+        return .opacity.combined(with: .offset(x: metrics.spacing.sm))
+    }
+}

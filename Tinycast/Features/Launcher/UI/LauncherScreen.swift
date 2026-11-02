@@ -554,7 +554,9 @@ struct LauncherScreen: PaletteScreen {
             },
             onDropped: { core.paletteCoordinator.dragLanded() },
             files: fileSection,
-            fallbacks: fallbackSection
+            fallbacks: fallbackSection,
+            numberResults: !vm.menuOpen && !vm.isControlListOpen,
+            slotLimit: ResultSlots.limit(emptyRoot: vm.emptyRootResultSlots)
         )
     }
 

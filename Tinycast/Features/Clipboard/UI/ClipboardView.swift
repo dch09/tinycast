@@ -15,6 +15,7 @@ struct ClipboardList: View {
     let onDragPayload: (ClipboardItem) -> ClipDragPayload?
     let onDropped: () -> Void
     @Environment(ClipboardStore.self) private var store
+    @Environment(PaletteState.self) private var palette
 
     private enum Row: Identifiable {
         case header(String)
@@ -36,16 +37,13 @@ struct ClipboardList: View {
     private var rows: [Row] {
         var rows: [Row] = []
         var currentTitle: String?
-        var pinnedSlot = 0
-        for item in results {
+        for (ordinal, item) in results.enumerated() {
             let title = item.isPinned ? String(localized: "Pinned") : DateBucket(for: item.createdAt).title
             if title != currentTitle {
                 rows.append(.header(title))
                 currentTitle = title
             }
-            let slot = item.isPinned ? FavoriteSlots.digit(at: pinnedSlot) : nil
-            if item.isPinned { pinnedSlot += 1 }
-            rows.append(.item(item, slot: slot))
+            rows.append(.item(item, slot: palette.resultListDigit(at: ordinal)))
         }
         return rows
     }
@@ -131,9 +129,8 @@ private struct ClipboardRow: View {
     let selected: Bool
     let imageURL: URL?
     let ownsImage: Bool
-    /// This row's ⌘-digit, or nil when it is not among the first ten visible pins.
+    /// This row's ⌘-digit, or nil when it is past the first five visible rows.
     let slot: Character?
-    @Environment(PaletteState.self) private var palette
     @State private var hovered = false
 
     /// Selection wins over hover when a row is both; otherwise hover shows its fainter layer.
@@ -153,12 +150,7 @@ private struct ClipboardRow: View {
                 .lineLimit(1)
                 .truncationMode(.tail)
             Spacer(minLength: 0)
-            if let slot, palette.commandHeld {
-                HStack(spacing: metrics.spacing.xxs) {
-                    KeyCapChip(text: "⌘", style: .outline)
-                    KeyCapChip(text: String(slot), style: .outline)
-                }
-            }
+            ResultSlotTrail(slot: slot) { EmptyView() }
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

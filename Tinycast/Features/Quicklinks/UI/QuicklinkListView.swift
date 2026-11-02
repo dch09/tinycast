@@ -55,6 +55,8 @@ struct QuicklinkList: View {
                             QuicklinkRow(
                                 quicklink: quicklink, selected: quicklink.id == selectedID
                             )
+                            .resultSlotOrdinal(
+                                results.firstIndex { $0.id == quicklink.id } ?? 0, overlay: false)
                             .selectionFrame(quicklink.id == selectedID)
                             .contentShape(Rectangle())
                             .onTapGesture { onSelect(quicklink) }
@@ -88,6 +90,7 @@ private struct QuicklinkRow: View {
     let quicklink: Quicklink
     let selected: Bool
     @Environment(HotKeyManager.self) private var hotKeys
+    @Environment(\.resultSlotCharacter) private var slot
     @State private var hovered = false
 
     /// Selection wins over hover when a row is both; otherwise hover shows its fainter layer.
@@ -114,15 +117,19 @@ private struct QuicklinkRow: View {
                     .truncationMode(.middle)
             }
             Spacer(minLength: metrics.spacing.lg)
-            if !quicklink.showsInRootSearch {
-                Image(systemName: "eye.slash")
-                    .font(.system(size: 10))
-                    .foregroundStyle(Theme.Colors.textTertiary)
-            }
-            if let keycaps = hotKeys.binding(for: .quicklink(id: quicklink.id))?.keycaps {
-                HStack(spacing: metrics.spacing.xxs) {
-                    ForEach(Array(keycaps.enumerated()), id: \.offset) { _, cap in
-                        KeyCapChip(text: cap, style: .outline)
+            ResultSlotTrail(slot: slot) {
+                HStack(spacing: metrics.spacing.sm) {
+                    if !quicklink.showsInRootSearch {
+                        Image(systemName: "eye.slash")
+                            .font(.system(size: 10))
+                            .foregroundStyle(Theme.Colors.textTertiary)
+                    }
+                    if let keycaps = hotKeys.binding(for: .quicklink(id: quicklink.id))?.keycaps {
+                        HStack(spacing: metrics.spacing.xxs) {
+                            ForEach(Array(keycaps.enumerated()), id: \.offset) { _, cap in
+                                KeyCapChip(text: cap, style: .outline)
+                            }
+                        }
                     }
                 }
             }

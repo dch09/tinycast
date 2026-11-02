@@ -182,6 +182,39 @@ final class PaletteState {
         favoriteSlotToken = UUID()
     }
 
+    /// Bumped when ⌘1–⌘5 should open a row of the control list that is up.
+    private(set) var controlListSlotToken = UUID()
+    private(set) var controlListSlot: Int?
+
+    /// Empty launcher with nothing else in front: the visible rows keep ⌘1–⌘0.
+    var emptyRootResultSlots: Bool {
+        mode == .launcher
+            && query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && !menuOpen
+            && !isControlListOpen
+    }
+
+    func handlesResultSlot(_ slot: Int) -> Bool {
+        ResultSlots.ordinal(forSlot: slot, emptyRoot: emptyRootResultSlots) != nil
+    }
+
+    /// Nil while a menu or a control list is the list on screen.
+    func resultListDigit(at ordinal: Int) -> Character? {
+        guard !menuOpen, !isControlListOpen else { return nil }
+        return ResultSlots.digit(at: ordinal, limit: ResultSlots.limit(emptyRoot: emptyRootResultSlots))
+    }
+
+    /// Nil unless this menu is the list on screen.
+    func menuSlotDigit(atSelectable ordinal: Int) -> Character? {
+        guard menuOpen || isControlListOpen else { return nil }
+        return ResultSlots.digit(at: ordinal)
+    }
+
+    func noteControlListSlot(_ ordinal: Int) {
+        controlListSlot = ordinal
+        controlListSlotToken = UUID()
+    }
+
     func noteEmojiGridZoom(_ zoom: EmojiGridZoom) {
         emojiGridZoom = zoom
         emojiGridZoomToken = UUID()

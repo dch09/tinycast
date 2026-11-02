@@ -11,6 +11,7 @@ struct FileSearchList: View {
     let onActivate: (FileSearchResult) -> Void
     let onActions: (FileSearchResult) -> Void
     let onDropped: () -> Void
+    @Environment(PaletteState.self) private var palette
 
     private var firstRowSelected: Bool {
         selectedID != nil && selectedID == results.first?.id
@@ -21,8 +22,11 @@ struct FileSearchList: View {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     SectionHeader(title: title, isFirst: true)
-                    ForEach(results) { result in
-                        FileSearchRow(result: result, selected: result.id == selectedID)
+                    ForEach(Array(results.enumerated()), id: \.element.id) { ordinal, result in
+                        FileSearchRow(
+                            result: result, selected: result.id == selectedID,
+                            slot: palette.resultListDigit(at: ordinal)
+                        )
                             .selectionFrame(result.id == selectedID)
                             .contentShape(Rectangle())
                             .onRowClick(
@@ -61,7 +65,6 @@ struct FileSearchRow: View {
     let selected: Bool
     let showsLocation: Bool
     let slot: Character?
-    @Environment(PaletteState.self) private var palette
     @State private var image: NSImage?
     @State private var hovered = false
 
@@ -114,15 +117,12 @@ struct FileSearchRow: View {
                     .truncationMode(.middle)
             }
             Spacer(minLength: 0)
-            if let slot, palette.commandHeld {
-                HStack(spacing: metrics.spacing.xxs) {
-                    KeyCapChip(text: "⌘", style: .outline)
-                    KeyCapChip(text: String(slot), style: .outline)
+            ResultSlotTrail(slot: slot) {
+                if showsLocation {
+                    Text(result.isDirectory ? "Folder" : "File")
+                        .font(metrics.typography.rowTrailing)
+                        .foregroundStyle(.secondary)
                 }
-            } else if showsLocation {
-                Text(result.isDirectory ? "Folder" : "File")
-                    .font(metrics.typography.rowTrailing)
-                    .foregroundStyle(.secondary)
             }
         }
         .padding(.horizontal, metrics.spacing.md)

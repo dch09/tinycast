@@ -16,8 +16,9 @@ struct WindowSwitchList: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(entries) { entry in
+                    ForEach(Array(entries.enumerated()), id: \.element.id) { ordinal, entry in
                         WindowSwitchRow(entry: entry, selected: entry.id == selectedID)
+                            .resultSlotOrdinal(ordinal, overlay: false)
                             .selectionFrame(entry.id == selectedID)
                             .contentShape(Rectangle())
                             .onTapGesture { onActivate(entry) }
@@ -41,6 +42,7 @@ private struct WindowSwitchRow: View {
     @Environment(\.metrics) private var metrics
     let entry: WindowSwitchEntry
     let selected: Bool
+    @Environment(\.resultSlotCharacter) private var slot
     @State private var hovered = false
 
     private var fill: Color {
@@ -70,10 +72,12 @@ private struct WindowSwitchRow: View {
                 .lineLimit(1)
                 .truncationMode(.middle)
             Spacer(minLength: metrics.spacing.md)
-            Text(trailing)
-                .font(metrics.typography.rowTrailing)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
+            ResultSlotTrail(slot: slot) {
+                Text(trailing)
+                    .font(metrics.typography.rowTrailing)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

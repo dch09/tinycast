@@ -4,6 +4,7 @@ import SwiftUI
 struct ExtensionListView: View {
     @Environment(\.metrics) private var metrics
     @Environment(\.isDarkAppearance) private var isDark
+    @Environment(PaletteState.self) private var palette
     let screen: ExtensionScreen
     let selection: Int
     let assetsPath: String?
@@ -74,7 +75,8 @@ struct ExtensionListView: View {
                         case .item(let item):
                             ExtensionItemRow(
                                 node: item.node, selected: item.index == selection,
-                                assetsPath: assetsPath, compact: screen.showsDetail
+                                assetsPath: assetsPath, compact: screen.showsDetail,
+                                slot: palette.resultListDigit(at: item.index)
                             )
                             .contentShape(Rectangle())
                             .onTapGesture {
@@ -128,6 +130,8 @@ struct ExtensionListView: View {
                             node: item.node, selected: item.index == selection,
                             assetsPath: assetsPath, layout: layout, width: tileWidth
                         )
+                        .resultSlotOrdinal(
+                            item.index, alignment: .topTrailing, scale: .compact)
                         .contentShape(Rectangle())
                         .onTapGesture {
                             onSelect(item.index)
@@ -172,6 +176,7 @@ private struct ExtensionItemRow: View {
     let selected: Bool
     let assetsPath: String?
     let compact: Bool
+    var slot: Character?
     @State private var hovered = false
 
     private var fill: Color {
@@ -200,10 +205,12 @@ private struct ExtensionItemRow: View {
             }
             Spacer(minLength: metrics.spacing.sm)
             // Raycast draws the accessories it is given, and a quota row's signal is all in them.
-            ExtensionAccessoriesView(
-                accessories: node.array("accessories"), assetsPath: assetsPath
-            )
-            .fixedSize(horizontal: true, vertical: false)
+            ResultSlotTrail(slot: slot) {
+                ExtensionAccessoriesView(
+                    accessories: node.array("accessories"), assetsPath: assetsPath
+                )
+                .fixedSize(horizontal: true, vertical: false)
+            }
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

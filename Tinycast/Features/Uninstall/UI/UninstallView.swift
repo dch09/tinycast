@@ -23,7 +23,7 @@ struct UninstallList: View {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     SectionHeader(title: summary, isFirst: true)
-                    ForEach(results) { candidate in
+                    ForEach(Array(results.enumerated()), id: \.element.id) { ordinal, candidate in
                         UninstallRow(
                             candidate: candidate,
                             selected: candidate.id == selectedID,
@@ -31,6 +31,7 @@ struct UninstallList: View {
                             onToggle: { onToggle(candidate) }
                         )
                         .id(candidate.id)
+                        .resultSlotOrdinal(ordinal, overlay: false)
                         .selectionFrame(candidate.id == selectedID)
                         .contentShape(Rectangle())
                         // Simultaneous, so single-click select never waits on the double-click.
@@ -67,6 +68,7 @@ private struct UninstallRow: View {
     let selected: Bool
     let checked: Bool
     let onToggle: () -> Void
+    @Environment(\.resultSlotCharacter) private var slot
     @State private var hovered = false
 
     private var fill: Color {
@@ -106,11 +108,15 @@ private struct UninstallRow: View {
                     .lineLimit(1)
             }
             Spacer(minLength: metrics.spacing.md)
-            Text(candidate.size?.formatted ?? "")
-                .font(metrics.typography.rowTrailing)
-                .foregroundStyle(.secondary)
-            FileIconView(path: candidate.path)
-                .frame(width: metrics.size.resultRowIcon, height: metrics.size.resultRowIcon)
+            ResultSlotTrail(slot: slot) {
+                HStack(spacing: metrics.spacing.md) {
+                    Text(candidate.size?.formatted ?? "")
+                        .font(metrics.typography.rowTrailing)
+                        .foregroundStyle(.secondary)
+                    FileIconView(path: candidate.path)
+                        .frame(width: metrics.size.resultRowIcon, height: metrics.size.resultRowIcon)
+                }
+            }
         }
         .opacity(candidate.isLocked ? 0.55 : 1)
         .padding(.horizontal, metrics.spacing.md)

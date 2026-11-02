@@ -15,12 +15,13 @@ struct RoomsList: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(rows) { row in
+                    ForEach(Array(rows.enumerated()), id: \.element.id) { ordinal, row in
                         RoomRowView(
                             row: row, selected: row.id == selectedID,
                             isCurrent: row.room?.id == currentRoomID,
                             layout: row.room.map(layout)
                         )
+                        .resultSlotOrdinal(ordinal, overlay: false)
                         .selectionFrame(row.id == selectedID)
                         .contentShape(Rectangle())
                         .onTapGesture { onActivate(row) }
@@ -45,6 +46,7 @@ private struct RoomRowView: View {
     let isCurrent: Bool
     /// Nil for the rows that make or edit a room rather than enter one.
     let layout: RoomLayoutKind?
+    @Environment(\.resultSlotCharacter) private var slot
     @State private var hovered = false
 
     private var fill: Color {
@@ -97,13 +99,15 @@ private struct RoomRowView: View {
                     .lineLimit(1)
             }
             Spacer(minLength: metrics.spacing.md)
-            if let layout {
-                HStack(spacing: metrics.spacing.sm) {
-                    Text(layout.title)
-                        .font(metrics.typography.rowTrailing)
-                        .foregroundStyle(.secondary)
-                    // Tab changes the selected room's layout, so only that row advertises it.
-                    if selected { KeyCapChip(text: "⇥", style: .outline) }
+            ResultSlotTrail(slot: slot) {
+                if let layout {
+                    HStack(spacing: metrics.spacing.sm) {
+                        Text(layout.title)
+                            .font(metrics.typography.rowTrailing)
+                            .foregroundStyle(.secondary)
+                        // Tab changes the selected room's layout, so only that row advertises it.
+                        if selected { KeyCapChip(text: "⇥", style: .outline) }
+                    }
                 }
             }
         }

@@ -124,6 +124,7 @@ struct ExtensionActionsPanel: View {
                             ExtensionActionRow(
                                 item: items[index],
                                 selected: index == selection,
+                                slot: palette.menuSlotDigit(atSelectable: index),
                                 onActivate: { onActivate(index) }
                             )
                             .onContinuousHover { if case .active = $0 { hover(index) } }
@@ -194,6 +195,7 @@ private struct ExtensionActionRow: View {
     @Environment(\.metrics) private var metrics
     let item: ExtensionActionItem
     let selected: Bool
+    let slot: Character?
     let onActivate: () -> Void
 
     private var panel: Metrics { Metrics(interface: metrics) }
@@ -208,9 +210,11 @@ private struct ExtensionActionRow: View {
                     .foregroundStyle(item.isDestructive ? Color.red : Color.primary)
                     .lineLimit(1)
                 Spacer(minLength: metrics.spacing.sm)
-                HStack(spacing: metrics.spacing.xxs) {
-                    ForEach(Array(item.shortcutCaps.enumerated()), id: \.offset) { _, cap in
-                        KeyCapChip(text: cap, style: .outline)
+                ResultSlotTrail(slot: slot) {
+                    HStack(spacing: metrics.spacing.xxs) {
+                        ForEach(Array(item.shortcutCaps.enumerated()), id: \.offset) { _, cap in
+                            KeyCapChip(text: cap, style: .outline)
+                        }
                     }
                 }
             }

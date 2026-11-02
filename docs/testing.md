@@ -869,8 +869,9 @@ caches, TCC grants and login item, so this cannot disturb an installed copy.
   empty query: both appear with app favorites in insertion order, including after relaunch.
 - Move files and apps across each other with ⌥⌘↑/↓ and the matching menu actions; selection follows
   the moved row. Remove a favorite through either path; selection stays within Favorites.
-- Hold ⌘ and check that each displayed ⌘1–⌘0 opens that favorite, including with the meeting card
-  above Favorites and from the compact palette.
+- Hold ⌘ and check that each displayed digit opens that visible row. With the meeting card above
+  Favorites, ⌘1 opens the card and the favorites follow; the same chords work from the compact
+  palette. A digit past the last row does nothing.
 - Search for a saved filename, including a short query and accented text: the favorite appears once.
   Turn Show in launcher off: saved files remain available; disable File Search: they disappear.
   Re-enable it: their order returns.

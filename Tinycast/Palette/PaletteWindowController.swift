@@ -437,15 +437,20 @@ final class PaletteWindowController: NSObject, NSWindowDelegate {
                 }
                 return true
             }
-            if self.core.palette.mode == .emoji, let zoom = Self.emojiGridZoom(from: event) {
-                self.core.palette.noteEmojiGridZoom(zoom)
-                return true
-            }
-            guard Self.commandCharacter(from: event) != nil else { return false }
-            if self.core.palette.mode == .launcher || self.core.palette.mode == .clipboard,
+            if Self.commandCharacter(from: event) != nil,
                 let index = FavoriteSlots.index(forKeyCode: event.keyCode)
             {
-                self.core.palette.noteFavoriteSlot(index)
+                if self.core.palette.handlesResultSlot(index) {
+                    self.core.palette.noteFavoriteSlot(index)
+                    return true
+                }
+                // Emoji keeps ⌘0 for actual size; every other spare digit must not reach the field.
+                if self.core.palette.mode != .emoji || index != FavoriteSlots.digits.count - 1 {
+                    return true
+                }
+            }
+            if self.core.palette.mode == .emoji, let zoom = Self.emojiGridZoom(from: event) {
+                self.core.palette.noteEmojiGridZoom(zoom)
                 return true
             }
             guard let character = Self.commandCharacter(from: event) else { return false }

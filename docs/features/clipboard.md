@@ -10,8 +10,8 @@
   `ClipboardDefaultAction.action(for:on:)` is the only place that says which chord runs what.**
   Paste owns ↵, Copy ⌘↵ and Paste as Plain Text ⌃⌘↵; `clipboardDefaultAction` moves one to ↵ and
   Paste takes the chord it left, so a Copy default keeps the ↵/⌘↵ swap it always had.
-  `ClipboardCoordinator.activate(_:chord:)` runs it, and ⌘1…⌘0 on a pin and a double-click go
-  through the same call, so no surface can drift from the setting; ⌥↵ pastes regardless, since
+  `ClipboardCoordinator.activate(_:chord:)` runs it, and a double-click goes through the same call,
+  so no surface can drift from the setting; ⌥↵ pastes regardless, since
   keeping the window open is a paste-only idea. The ⌘K menu lists the three in chord order, which
   puts the default first with the ↵ chip.
 - **Paste as Plain Text writes `ClipboardItem.plainText` and nothing else**: the text itself, or a
@@ -408,9 +408,8 @@ Paste and Keep Window Open (⌥↵) does not promote any entry. The rows hold st
 selection, so ↓ then ⌥↵ pastes a run of entries in order. `Paster.write` therefore only writes the
 pasteboard; `paste` and `copy` promote after it, and `pasteInPlace` does not.
 
-The ten palette slots shared with launcher favorites address this visible Pinned block too. A slot
-uses the current query and type filter, so its first entry is the first visible pin; a missing slot is
-a no-op. They are fixed to the physical number row, with ⌘1…⌘9 then ⌘0 as their labels.
+⌘1–⌘5 open the first five visible rows of the current query and type filter, pins included only
+because they lead that list. ⌘6–⌘0 do nothing here. Holding ⌘ shows those digits on the rows.
 
 `load` reads every pinned row plus the newest 1000 unpinned ones as two indexed branches over a
 partial index on `pinned_at` (`Tests/clipboard-test.swift` covers the shape). The single

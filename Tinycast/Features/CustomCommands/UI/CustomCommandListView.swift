@@ -13,8 +13,9 @@ struct CustomCommandList: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(results, id: \.id.uuidString) { command in
+                    ForEach(Array(results.enumerated()), id: \.element.id) { ordinal, command in
                         Row(command: command, selected: command.id == selectedID)
+                            .resultSlotOrdinal(ordinal, overlay: false)
                             .selectionFrame(command.id == selectedID)
                             .contentShape(Rectangle())
                             .onTapGesture { onSelect(command) }
@@ -46,6 +47,7 @@ struct CustomCommandList: View {
         @Environment(HotKeyManager.self) private var hotKeys
         let command: CustomCommand
         let selected: Bool
+        @Environment(\.resultSlotCharacter) private var slot
         @State private var hovered = false
 
         private var fill: Color {
@@ -61,15 +63,19 @@ struct CustomCommandList: View {
                     .frame(width: metrics.size.resultRowIcon, height: metrics.size.resultRowIcon)
                 Text(command.name).font(metrics.typography.rowTitle).lineLimit(1)
                 Spacer(minLength: metrics.spacing.sm)
-                if !command.showsInRootSearch {
-                    SymbolImage(name: "eye.slash", size: metrics.size.menuIcon)
-                        .foregroundStyle(Theme.Colors.textTertiary)
-                        .accessibilityLabel("Hidden from root search")
-                }
-                if let keycaps = hotKeys.binding(for: .customCommand(id: command.id))?.keycaps {
-                    HStack(spacing: metrics.spacing.xxs) {
-                        ForEach(Array(keycaps.enumerated()), id: \.offset) { _, cap in
-                            KeyCapChip(text: cap, style: .outline)
+                ResultSlotTrail(slot: slot) {
+                    HStack(spacing: metrics.spacing.sm) {
+                        if !command.showsInRootSearch {
+                            SymbolImage(name: "eye.slash", size: metrics.size.menuIcon)
+                                .foregroundStyle(Theme.Colors.textTertiary)
+                                .accessibilityLabel("Hidden from root search")
+                        }
+                        if let keycaps = hotKeys.binding(for: .customCommand(id: command.id))?.keycaps {
+                            HStack(spacing: metrics.spacing.xxs) {
+                                ForEach(Array(keycaps.enumerated()), id: \.offset) { _, cap in
+                                    KeyCapChip(text: cap, style: .outline)
+                                }
+                            }
                         }
                     }
                 }

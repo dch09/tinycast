@@ -45,6 +45,8 @@ struct ScheduleList: View {
                             .contentShape(Rectangle())
                             .onTapGesture { onActivate(meeting) }
                             .onRightClick { onActions(meeting) }
+                            .resultSlotOrdinal(
+                                results.firstIndex { $0.id == meeting.id } ?? 0, overlay: false)
                             .selectionFrame(meeting.id == selectedID)
                         }
                     }
@@ -69,6 +71,7 @@ private struct MeetingRow: View {
     let meeting: MeetingEvent
     let now: Date
     let selected: Bool
+    @Environment(\.resultSlotCharacter) private var slot
     @State private var hovered = false
 
     private var fill: Color {
@@ -89,7 +92,9 @@ private struct MeetingRow: View {
                 .font(metrics.typography.rowTitle)
                 .lineLimit(1)
             Spacer(minLength: metrics.spacing.md)
-            MeetingTiming(meeting: meeting, now: now)
+            ResultSlotTrail(slot: slot) {
+                MeetingTiming(meeting: meeting, now: now)
+            }
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

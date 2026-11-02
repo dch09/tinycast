@@ -66,6 +66,7 @@ struct CalculatorHistoryList: View {
                             SectionHeader(title: title, isFirst: row.id == rows.first?.id)
                         case .calc(let result):
                             CalculatorCard(result: result, selected: calcSelected)
+                                .resultSlotOrdinal(0, alignment: .topTrailing)
                                 .contentShape(Rectangle())
                                 .onTapGesture(perform: onActivateCalc)
                                 .onRightClick(perform: onCalcActions)
@@ -73,6 +74,9 @@ struct CalculatorHistoryList: View {
                                 .selectionFrame(calcSelected)
                         case .entry(let entry):
                             CalcHistoryRow(entry: entry, selected: entry.id == selectedID)
+                                .resultSlotOrdinal(
+                                    (calc == nil ? 0 : 1) + (results.firstIndex { $0.id == entry.id } ?? 0),
+                                    overlay: false)
                                 .selectionFrame(entry.id == selectedID)
                                 .contentShape(Rectangle())
                                 .onTapGesture { onSelect(entry) }
@@ -107,6 +111,7 @@ private struct CalcHistoryRow: View {
     @Environment(AppCore.self) private var core
     let entry: CalcHistoryEntry
     let selected: Bool
+    @Environment(\.resultSlotCharacter) private var slot
     @State private var hovered = false
 
     private var format: CalcNumberFormat { core.calcNumberFormat }
@@ -128,9 +133,11 @@ private struct CalcHistoryRow: View {
                 .lineLimit(1)
                 .truncationMode(.tail)
             Spacer(minLength: metrics.spacing.xl)
-            Text(format.localized(entry.result))
-                .font(metrics.typography.rowTitle.weight(.semibold))
-                .lineLimit(1)
+            ResultSlotTrail(slot: slot) {
+                Text(format.localized(entry.result))
+                    .font(metrics.typography.rowTitle.weight(.semibold))
+                    .lineLimit(1)
+            }
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

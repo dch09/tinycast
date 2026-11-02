@@ -213,8 +213,19 @@ struct PopoverMenu: View {
     }
 
     /// The title and rows move as one surface, while row IDs still drive keyboard reveal.
+    private var slotDigits: [Character?] {
+        var digits = Array<Character?>(repeating: nil, count: items.count)
+        var ordinal = 0
+        for index in items.indices where items[index].isSelectable {
+            digits[index] = palette.menuSlotDigit(atSelectable: ordinal)
+            ordinal += 1
+        }
+        return digits
+    }
+
     private var rows: some View {
         let extent = listExtent
+        let digits = slotDigits
         return ScrollViewReader { proxy in
             ScrollView {
                 // Lazy: a model menu runs to hundreds of rows, and only the viewport's are seen.
@@ -234,7 +245,8 @@ struct PopoverMenu: View {
                                 }
                                 PopoverMenuRow(
                                     item: items[index],
-                                    selected: index == selection && items[index].isSelectable
+                                    selected: index == selection && items[index].isSelectable,
+                                    slot: digits[index]
                                 ) {
                                     onActivate(index)
                                 }
@@ -342,6 +354,7 @@ struct PopoverMenu: View {
 private struct PopoverMenuRow: View {
     let item: PopoverMenuItem
     let selected: Bool
+    let slot: Character?
     let onActivate: () -> Void
     @Environment(\.metrics) private var metrics
     @Environment(\.colorScheme) private var colorScheme
@@ -387,19 +400,23 @@ private struct PopoverMenuRow: View {
                     .foregroundStyle(item.isDestructive ? Color.red : Color.primary)
                     .lineLimit(1)
                 Spacer(minLength: metrics.spacing.sm)
-                if let detail = item.detail {
-                    Text(detail)
-                        // Smaller than the title it trails: a stated value, not a second label.
-                        .font(metrics.typography.keyCap)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        // A notation opens with what identifies it, so the tail is what can go.
-                        .truncationMode(.tail)
-                }
-                if let shortcut = item.shortcut {
-                    HStack(spacing: metrics.spacing.xxs) {
-                        ForEach(Array(shortcut.enumerated()), id: \.offset) { _, glyph in
-                            KeyCapChip(text: String(glyph), style: .outline)
+                ResultSlotTrail(slot: slot) {
+                    HStack(spacing: metrics.spacing.sm) {
+                        if let detail = item.detail {
+                            Text(detail)
+                                // Smaller than the title it trails: a stated value, not a second label.
+                                .font(metrics.typography.keyCap)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                                // A notation opens with what identifies it, so the tail is what can go.
+                                .truncationMode(.tail)
+                        }
+                        if let shortcut = item.shortcut {
+                            HStack(spacing: metrics.spacing.xxs) {
+                                ForEach(Array(shortcut.enumerated()), id: \.offset) { _, glyph in
+                                    KeyCapChip(text: String(glyph), style: .outline)
+                                }
+                            }
                         }
                     }
                 }

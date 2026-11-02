@@ -244,6 +244,7 @@ private struct EmojiGridRowView: View {
                         hovered: column == hoveredColumn,
                         size: cellSize
                     )
+                    .resultSlotOrdinal(row.start + column, alignment: .topTrailing, scale: .compact)
                 } else {
                     // Empty trailing slots keep a partial last row aligned with the full rows.
                     Color.clear.frame(width: cellSize, height: cellSize)

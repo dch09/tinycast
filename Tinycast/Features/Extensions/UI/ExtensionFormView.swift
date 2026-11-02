@@ -72,6 +72,7 @@ struct ExtensionFormView: View {
             fieldView(field, index: item.index)
                 .id(item.id)
                 .selectionFrame(item.index == selection)
+                .resultSlotOrdinal(item.index)
         } else {
             fieldView(field, index: nil)
         }

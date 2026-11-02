@@ -61,6 +61,8 @@ struct MenuSearchList: View {
                                 item: item, path: isSearching ? item.menuPath : item.submenuPath,
                                 icon: icon, selected: item.id == selectedID
                             )
+                            .resultSlotOrdinal(
+                                items.firstIndex { $0.id == item.id } ?? 0, overlay: false)
                             .selectionFrame(item.id == selectedID)
                             .contentShape(Rectangle())
                             .onTapGesture { onActivate(item) }
@@ -97,6 +99,7 @@ private struct MenuSearchRow: View {
     let path: String
     let icon: NSImage?
     let selected: Bool
+    @Environment(\.resultSlotCharacter) private var slot
     @State private var hovered = false
 
     private var fill: Color {
@@ -128,11 +131,13 @@ private struct MenuSearchRow: View {
                     .truncationMode(.middle)
             }
             Spacer(minLength: metrics.spacing.md)
-            let caps = item.shortcut?.keycaps ?? []
-            if !caps.isEmpty {
-                HStack(spacing: metrics.spacing.xxs) {
-                    ForEach(caps, id: \.self) { cap in
-                        KeyCapChip(text: cap, style: .outline)
+            ResultSlotTrail(slot: slot) {
+                let caps = item.shortcut?.keycaps ?? []
+                if !caps.isEmpty {
+                    HStack(spacing: metrics.spacing.xxs) {
+                        ForEach(caps, id: \.self) { cap in
+                            KeyCapChip(text: cap, style: .outline)
+                        }
                     }
                 }
             }

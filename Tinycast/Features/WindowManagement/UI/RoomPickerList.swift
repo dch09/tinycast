@@ -15,11 +15,12 @@ struct RoomPickerList: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(rows) { row in
+                    ForEach(Array(rows.enumerated()), id: \.element.id) { ordinal, row in
                         RoomPickerRowView(
                             row: row, place: picked.firstIndex(of: row.pick).map { $0 + 1 },
                             selected: row.id == selectedID
                         )
+                        .resultSlotOrdinal(ordinal, overlay: false)
                         .selectionFrame(row.id == selectedID)
                         .contentShape(Rectangle())
                         .onTapGesture { onActivate(row) }
@@ -43,6 +44,7 @@ private struct RoomPickerRowView: View {
     /// Its place in the room, 1 being the main window; nil when it is not in the room.
     let place: Int?
     let selected: Bool
+    @Environment(\.resultSlotCharacter) private var slot
     @State private var hovered = false
 
     private var fill: Color {
@@ -95,10 +97,12 @@ private struct RoomPickerRowView: View {
                 .lineLimit(1)
                 .truncationMode(.middle)
             Spacer(minLength: metrics.spacing.md)
-            Text(trailing)
-                .font(metrics.typography.rowTrailing)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
+            ResultSlotTrail(slot: slot) {
+                Text(trailing)
+                    .font(metrics.typography.rowTrailing)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

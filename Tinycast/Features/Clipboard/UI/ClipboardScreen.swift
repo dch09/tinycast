@@ -44,7 +44,6 @@ struct ClipboardScreen: PaletteScreen {
             deleteAll()
             return true
         case .pin: return pin(at: selection)
-        case .favoriteSlot(let index): return activatePinned(at: index)
         case .copyText:
             guard let item = item(at: selection), item.offersTextExtraction else { return false }
             core.clipboardCoordinator.copyImageText(item)
@@ -59,14 +58,6 @@ struct ClipboardScreen: PaletteScreen {
             return true
         default: return false
         }
-    }
-
-    private func activatePinned(at index: Int) -> Bool {
-        guard let item = store.pinnedItem(at: index, in: vm.query, filter: vm.clipboardFilter) else {
-            return false
-        }
-        core.clipboardCoordinator.activate(item)
-        return true
     }
 
     /// ⌘↵ — the action ↵ is not set to.

@@ -95,6 +95,10 @@ struct ExtensionDateField: View {
             .onChange(of: query) { typedAt = Date() }
             .onScrollVisibilityChange { if !$0 { close() } }
             .onChange(of: palette.controlListDismissToken) { close() }
+            .onChange(of: palette.controlListSlotToken) {
+                guard open, let slot = palette.controlListSlot else { return }
+                choose(suggestions, at: slot)
+            }
             .onDisappear { if open { palette.noteControlListOpen(false) } }
             .onChange(of: focus) { _, focus in
                 if focus != index { close() }

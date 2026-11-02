@@ -292,7 +292,8 @@ agenda order. Those sections follow publication order, so visible rows and flat 
 downstream. The result limit bounds ordinary matches, while whole categories remain uncapped, as they
 are for an empty query.
 
-Category queries show headers without pinning favorites or handing out their ⌘-digit slots. Opening
+Category queries show headers without pinning favorites, so they get no favorite slots. The first
+five rows still answer ⌘1–⌘5, the same as any other typed query. Opening
 a row records its visit; the query is learned only when it did not match that row's category, so
 category browsing cannot teach every window command the same search term.
 
@@ -727,7 +728,7 @@ stays removable and reports the ordinary open failure.
 
 An empty query pins the section. `AppIndex.orderedResults` resolves the visible launcher entries;
 `LauncherScreen` merges those with saved files in key order through `FavoritesStore.orderedItems`.
-Its `pinnedFavorites` array feeds rendering, reordering and ⌘-digit slots. File favorites are hidden
+Its `pinnedFavorites` array feeds rendering and reordering. File favorites are hidden
 while File Search is disabled, with their keys retained. **Show in launcher** controls indexed search
 hits, so turning it off keeps explicit file favorites available.
 
@@ -748,21 +749,28 @@ favorites and keeps its selection when one is toggled.
 
 `FavoriteSlots` (`Launcher/Model/FavoriteSlots.swift`) defines ten local palette slots: **⌘1…⌘9 then
 ⌘0**. They match the physical number row, not the character produced by the current keyboard layout,
-so the same positions work on QWERTY and AZERTY. The same slots address pinned Clipboard entries in
-that screen; the eleventh favorite is still listed and reorderable, and simply has no slot.
+so the same positions work on QWERTY and AZERTY. The eleventh favorite is still listed and
+reorderable, and simply has no slot. Every other list, including Clipboard, uses the five result
+chords below rather than these ten.
 
 Both palette sizes serve the chords from the same prefix, because `paletteIsCollapsed` already
-requires an empty query: **compact implies empty implies `pinnedFavorites` is the visible section**. That
-is why `LauncherScreen.pinnedFavorites` feeds the chords and the numbered rows alike, rather than
-the compact bar re-deriving an empty-query order of its own. The compact bar draws no favorites, yet
-every slot still launches one.
+requires an empty query: **compact implies empty implies the empty-query rows**. The compact bar
+draws no favorites, yet a slot still activates that row of `LauncherScreen.rows`.
 
-Holding ⌘ swaps each numbered row's kind label for its chord. `PalettePanel` publishes the modifier
+An empty root field does not drop the chord. **⌘1–⌘0 open the first ten selectable rows** actually
+on screen — lead card, favorites, then the default results — and holding ⌘ reveals those chips. A
+digit past the last row does nothing. A typed query narrows that to **⌘1–⌘5**, and ⌘6–⌘0 stay
+unused. The same five chords address whatever other list is on screen, including one whose own field
+is empty: another palette screen, or the menu open in front of one. The palette claims the digit
+before the screen, so a screen's own number shortcut cannot take it.
+
+Holding ⌘ crossfades each numbered row's trailing label into its chord, and releasing ⌘
+crossfades it back, on the same ease as a hover. `PalettePanel` publishes the modifier
 into `PaletteState.commandHeld` from `.flagsChanged` and clears it in `resignKey` — not in `prepare`,
 which a re-show that preserves state skips entirely. The flag flips **400 ms after** the press, not
 on it: every ⌘ chord in the palette starts as a ⌘ press, so revealing on the down edge flashed the
 numbering under ⌘↵ and ⌘K. `noteCommandHeld` schedules the reveal and any release cancels it, so a
-chord's own tap never outlives its keystroke while a deliberate hold still lights every row. **`AppRow` observes that flag itself**: reading
+chord's own tap never outlives its keystroke while a deliberate hold still lights every row. **The trailing slot observes that flag**: reading
 it any higher would attach it to `RootPaletteView`'s body and rebuild the whole palette on every ⌘
 press, where a row-level read re-runs only the handful of rows the `LazyVStack` has realized. The
 digit each row shows is carried on its `Row` case from the section build, so no row searches for its

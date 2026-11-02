@@ -25,6 +25,9 @@ struct LauncherList: View {
     var files: FileSection?
     /// The `Use "…" with` section, always last; nil when nothing is typed.
     var fallbacks: FallbackSection?
+    /// Numbers the visible rows. An empty root widens the run from five to ten.
+    var numberResults = false
+    var slotLimit = ResultSlots.count
     @Environment(RunningAppsMonitor.self) private var runningApps
 
     /// What the fallback section draws and where its rows go, addressed by position.
@@ -83,6 +86,13 @@ struct LauncherList: View {
             case .favorite(let favorite, _): return favorite.id
             case .file(let result, _): return "file-" + result.id
             case .fallback(let app, _): return "fallback-" + app.id
+            }
+        }
+
+        var isSelectable: Bool {
+            switch self {
+            case .header, .fallbackHeader: false
+            default: true
             }
         }
     }
@@ -155,6 +165,8 @@ struct LauncherList: View {
 
     var body: some View {
         let rows = rows
+        let resultSlots = ResultSlots.digits(
+            numbering: numberResults, rows: rows, selectable: \.isSelectable, limit: slotLimit)
         return Group {
             if results.isEmpty && favorites.isEmpty && card == nil && files == nil && fallbacks == nil {
                 EmptyResults(text: String(localized: "No apps found"))
@@ -173,6 +185,7 @@ struct LauncherList: View {
                                         configureHelp: String(localized: "Configure Fallbacks…"))
                                 case .card(let card):
                                     LeadCardView(card: card, selected: cardSelected)
+                                        .resultSlot(resultSlots[row.id], alignment: .topTrailing)
                                         .contentShape(Rectangle())
                                         .onTapGesture(perform: onActivateCard)
                                         .onRightClick(perform: onCardActions)
@@ -183,14 +196,14 @@ struct LauncherList: View {
                                         app: app,
                                         selected: app.id == selectedRowID,
                                         running: runningApps.isRunning(app),
-                                        slot: nil
+                                        slot: resultSlots[row.id]
                                     )
                                     .contentShape(Rectangle())
                                     .onRowTap(drag: drag(for: app)) { onActivate(app) }
                                     .onRightClick { onActions(app) }
                                     .selectionFrame(app.id == selectedRowID)
                                 case .favorite(let favorite, let index):
-                                    favoriteRow(favorite, index: index)
+                                    favoriteRow(favorite, slot: resultSlots[row.id])
                                         .contentShape(Rectangle())
                                         .onRowTap(drag: drag(for: favorite)) { onActivateFavorite(index) }
                                         .onRightClick { onFavoriteActions(index) }
@@ -198,7 +211,7 @@ struct LauncherList: View {
                                 case .file(let result, let index):
                                     FileSearchRow(
                                         result: result, selected: row.id == selectedRowID,
-                                        showsLocation: true
+                                        showsLocation: true, slot: resultSlots[row.id]
                                     )
                                     .contentShape(Rectangle())
                                     .onRowTap(drag: result.rowDrag(dropped: onDropped)) {
@@ -209,7 +222,7 @@ struct LauncherList: View {
                                 case .fallback(let app, let index):
                                     AppRow(
                                         app: app, selected: row.id == selectedRowID, running: false,
-                                        slot: nil
+                                        slot: resultSlots[row.id]
                                     )
                                     .contentShape(Rectangle())
                                     .onTapGesture { fallbacks?.onActivate(index) }
@@ -235,8 +248,7 @@ struct LauncherList: View {
     }
 
     @ViewBuilder
-    private func favoriteRow(_ favorite: FavoritesStore.Item, index: Int) -> some View {
-        let slot = FavoriteSlots.digit(at: index)
+    private func favoriteRow(_ favorite: FavoritesStore.Item, slot: Character?) -> some View {
         switch favorite {
         case .entry(let entry):
             AppRow(
@@ -294,8 +306,6 @@ private struct AppRow: View {
     @Environment(HotKeyManager.self) private var hotKeys
     /// Observed for the same reason: an alias edit re-renders the row's badge at once.
     @Environment(AliasStore.self) private var aliases
-    /// Observed here rather than up in the list, so a ⌘ press re-renders rows and not the palette.
-    @Environment(PaletteState.self) private var palette
     @State private var hovered = false
 
     /// Selection wins over hover when a row is both; otherwise hover shows its fainter layer.
@@ -359,17 +369,14 @@ private struct AppRow: View {
                 ExtensionRefreshIndicator(state: refresh)
                     .font(metrics.typography.rowTrailing)
             }
-            if let slot, palette.commandHeld {
-                HStack(spacing: metrics.spacing.xxs) {
-                    KeyCapChip(text: "⌘", style: .outline)
-                    KeyCapChip(text: String(slot), style: .outline)
+            ResultSlotTrail(slot: slot) {
+                if app.kind == .meeting {
+                    MeetingEntryContent(entryID: app.id) { MeetingTiming(meeting: $0, now: $1) }
+                } else {
+                    Text(app.kindLabel)
+                        .font(metrics.typography.rowTrailing)
+                        .foregroundStyle(.secondary)
                 }
-            } else if app.kind == .meeting {
-                MeetingEntryContent(entryID: app.id) { MeetingTiming(meeting: $0, now: $1) }
-            } else {
-                Text(app.kindLabel)
-                    .font(metrics.typography.rowTrailing)
-                    .foregroundStyle(.secondary)
             }
         }
         .padding(.horizontal, metrics.spacing.md)

@@ -54,6 +54,8 @@ struct ChatHistoryList: View {
                                 conversation: conversation,
                                 selected: conversation.id == selectedID
                             )
+                            .resultSlotOrdinal(
+                                results.firstIndex { $0.id == conversation.id } ?? 0, overlay: false)
                             .selectionFrame(conversation.id == selectedID)
                             .contentShape(Rectangle())
                             .onTapGesture { onSelect(conversation) }
@@ -86,6 +88,7 @@ private struct ChatHistoryRow: View {
 
     @Environment(\.metrics) private var metrics
     let conversation: ChatConversation
+    @Environment(\.resultSlotCharacter) private var slot
     let selected: Bool
     @State private var hovered = false
 
@@ -112,9 +115,11 @@ private struct ChatHistoryRow: View {
                 }
             }
             Spacer(minLength: 0)
-            Text(conversation.updatedAt.formatted(date: .omitted, time: .shortened))
-                .font(metrics.typography.keyCap)
-                .foregroundStyle(Theme.Colors.textTertiary)
+            ResultSlotTrail(slot: slot) {
+                Text(conversation.updatedAt.formatted(date: .omitted, time: .shortened))
+                    .font(metrics.typography.keyCap)
+                    .foregroundStyle(Theme.Colors.textTertiary)
+            }
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)
