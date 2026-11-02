@@ -217,6 +217,7 @@ final class AppCore {
     @ObservationIgnored private(set) lazy var cameraCoordinator = CameraCoordinator(core: self)
     @ObservationIgnored private(set) lazy var dictionaryCoordinator = DictionaryCoordinator(
         paletteCoordinator: paletteCoordinator)
+    @ObservationIgnored private(set) lazy var caffeineCoordinator = CaffeineCoordinator(core: self)
     @ObservationIgnored private(set) lazy var updateCoordinator = UpdateCoordinator(
         store: updateChecker, core: self)
     @ObservationIgnored private(set) lazy var supportCoordinator = SupportCoordinator(
@@ -757,6 +758,13 @@ final class AppCore {
         track({ _ = $0.appearance }, reproject: { $0.applyAppearance() })
         track({ _ = $0.animationsEnabled }, reproject: { $0.applyMotion() })
         track({ _ = $0.language }, reproject: { $0.offerLanguageRelaunch() })
+        track(
+            {
+                _ = $0.caffeinatePreventDisplaySleep
+                _ = $0.caffeinatePreventSystemSleep
+                _ = $0.caffeinatePreventDiskSleep
+                _ = $0.caffeinateShowsMenuBar
+            }, reproject: { $0.caffeineCoordinator.applySettings() })
         track({ _ = $0.interfaceSize }, reproject: { $0.windowController.applyInterfaceSize() })
         // Settings panes did these on change; settings.json can change them with no pane open.
         track(

@@ -47,6 +47,13 @@ enum CommandID: String, CaseIterable, Sendable {
     case settings = "command:settings"
     case about = "command:about"
     case support = "command:support"
+    case caffeinate = "command:caffeinate"
+    case decaffeinate = "command:decaffeinate"
+    case toggleCaffeinate = "command:toggle-caffeinate"
+    case caffeinateFor = "command:caffeinate-for"
+    case caffeinateUntil = "command:caffeinate-until"
+    case caffeinateWhile = "command:caffeinate-while"
+    case caffeinateStatus = "command:caffeinate-status"
     case quit = "command:quit"
 
     static let defaultCompactBarCommands: [CommandID] = [
@@ -122,6 +129,13 @@ enum CommandID: String, CaseIterable, Sendable {
         case .settings: return "Tinycast Settings"
         case .about: return "About Tinycast"
         case .support: return "Support Tinycast"
+        case .caffeinate: return "Caffeinate"
+        case .decaffeinate: return "Decaffeinate"
+        case .toggleCaffeinate: return "Toggle Caffeinate"
+        case .caffeinateFor: return "Caffeinate for…"
+        case .caffeinateUntil: return "Caffeinate Until"
+        case .caffeinateWhile: return "Caffeinate While"
+        case .caffeinateStatus: return "Caffeinate Status"
         case .quit: return "Quit Tinycast"
         }
     }
@@ -172,6 +186,13 @@ enum CommandID: String, CaseIterable, Sendable {
         case .settings: return "gearshape"
         case .about: return "info.circle"
         case .support: return "heart"
+        case .caffeinate: return "cup.and.saucer.fill"
+        case .decaffeinate: return "moon.zzz"
+        case .toggleCaffeinate: return "arrow.triangle.2.circlepath"
+        case .caffeinateFor: return "timer"
+        case .caffeinateUntil: return "clock"
+        case .caffeinateWhile: return "cpu"
+        case .caffeinateStatus: return "info.circle"
         case .quit: return "power"
         }
     }
@@ -201,6 +222,9 @@ enum CommandID: String, CaseIterable, Sendable {
         switch self {
         case .quickAI: ["ai"]
         case .aiChat: ["chat"]
+        case .caffeinate, .decaffeinate, .toggleCaffeinate, .caffeinateFor, .caffeinateUntil,
+            .caffeinateWhile, .caffeinateStatus:
+            ["coffee", "caffeine"]
         default: []
         }
     }
@@ -220,6 +244,17 @@ enum CommandID: String, CaseIterable, Sendable {
     /// Query-driven: the typed text is their input, so they are built where offered, never listed.
     var isQueryDriven: Bool {
         self == .openInBrowser || self == .runShellCommand
+    }
+
+    /// Found beside the name: "coffee" reaches the caffeinate commands without ranking as one.
+    var keywords: [String] {
+        switch self {
+        case .caffeinate, .decaffeinate, .toggleCaffeinate, .caffeinateFor, .caffeinateUntil,
+            .caffeinateWhile, .caffeinateStatus:
+            ["coffee", "caffeine", "awake", "sleep"]
+        default:
+            []
+        }
     }
 
     /// A chord carries no query, and none should be able to terminate the app outright.

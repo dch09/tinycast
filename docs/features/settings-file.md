@@ -174,6 +174,9 @@ in `commands.builtIn` — by their ID after `command:`. App Launcher and Dictati
   after its last shortcut is cleared, even outside the search scopes.
 - `applications.enabled`, `systemSettings.enabled`, `systemActions.enabled` and
   `commands.builtInEnabled` are each pane's category switch; `commands.enabled` stays custom commands'.
+- `commands.preventDisplaySleep`, `commands.preventSystemSleep`, `commands.preventDiskSleep` and
+  `commands.showCaffeinateMenuBar` are the Caffeinate section. Display, system and the menu bar
+  default on; disk defaults off.
 
 ## Window management
 

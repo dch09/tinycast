@@ -269,6 +269,20 @@ final class LauncherCoordinator {
         case .support:
             dismissPalette()
             core.supportCoordinator.showSupport()
+        case .caffeinate:
+            core.caffeineCoordinator.start(.indefinite)
+        case .decaffeinate:
+            core.caffeineCoordinator.stop(announcing: true, dismiss: true)
+        case .toggleCaffeinate:
+            core.caffeineCoordinator.toggle()
+        case .caffeinateFor:
+            core.caffeineCoordinator.show(.duration)
+        case .caffeinateUntil:
+            core.caffeineCoordinator.show(.until)
+        case .caffeinateWhile:
+            core.caffeineCoordinator.show(.process)
+        case .caffeinateStatus:
+            core.caffeineCoordinator.showStatus()
         case .quit:
             NSApp.terminate(nil)
         }

@@ -68,7 +68,11 @@ enum SettingsBackupCoverage {
         "menuBarLinkedEventsOnly": .menuBarLinkedEventsOnly,
         "calendarMenuBarHidesWhenEmpty": .calendarMenuBarHidesWhenEmpty,
         "hideCurrentEvent": .hideCurrentEvent,
-        "supportReminders": .supportReminders
+        "supportReminders": .supportReminders,
+        "caffeinatePreventDisplaySleep": .caffeinatePreventDisplaySleep,
+        "caffeinatePreventSystemSleep": .caffeinatePreventSystemSleep,
+        "caffeinatePreventDiskSleep": .caffeinatePreventDiskSleep,
+        "caffeinateShowsMenuBar": .caffeinateShowsMenuBar
     ]
 
     /// The `SettingsData` fields no `AppSettings` key stands behind, and what they read instead.

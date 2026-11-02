@@ -17,6 +17,8 @@ struct CommandsSettingsView: View {
                 searchPrompt: "Search commands…",
                 emptyMessage: LocalizedStringResource("commands-empty", defaultValue: "Nothing here yet."))
 
+            CaffeineSettingsSection()
+
             FeatureSwitchSection(
                 anchor: .commandsCustomCommands,
                 enableTitle: "Enable custom commands",

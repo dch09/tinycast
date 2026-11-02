@@ -658,6 +658,29 @@ final class AppSettings {
         didSet { defaults.set(supportRemindersEnabled, forKey: Key.supportReminders.rawValue) }
     }
 
+    var caffeinatePreventDisplaySleep: Bool {
+        didSet {
+            defaults.set(caffeinatePreventDisplaySleep, forKey: Key.caffeinatePreventDisplaySleep.rawValue)
+        }
+    }
+
+    var caffeinatePreventSystemSleep: Bool {
+        didSet {
+            defaults.set(caffeinatePreventSystemSleep, forKey: Key.caffeinatePreventSystemSleep.rawValue)
+        }
+    }
+
+    /// Off unless stored: keeping disks spun up costs battery and most holds don't need it.
+    var caffeinatePreventDiskSleep: Bool {
+        didSet {
+            defaults.set(caffeinatePreventDiskSleep, forKey: Key.caffeinatePreventDiskSleep.rawValue)
+        }
+    }
+
+    var caffeinateShowsMenuBar: Bool {
+        didSet { defaults.set(caffeinateShowsMenuBar, forKey: Key.caffeinateShowsMenuBar.rawValue) }
+    }
+
     /// Whether settings.json mirrors these settings; `AppCore` starts and stops the mirror.
     var settingsFileEnabled: Bool {
         didSet { defaults.set(settingsFileEnabled, forKey: Key.settingsFileEnabled.rawValue) }
@@ -666,6 +689,11 @@ final class AppSettings {
     /// With no per-app list the bundle follows macOS's languages, so this runs before any lookup.
     static func pinLanguage() {
         UserDefaults.standard.set([storedLanguage.rawValue], forKey: Key.language.rawValue)
+    }
+
+    /// A missing bool is on, so a stored `false` stays distinct from a key the user has never set.
+    private static func onUnlessStored(_ defaults: UserDefaults, _ key: Key) -> Bool {
+        defaults.object(forKey: key.rawValue) == nil || defaults.bool(forKey: key.rawValue)
     }
 
     /// The app's own domain only: a plain read falls through to the global list.
@@ -898,6 +926,10 @@ final class AppSettings {
         supportRemindersEnabled =
             defaults.object(forKey: Key.supportReminders.rawValue) == nil
             || defaults.bool(forKey: Key.supportReminders.rawValue)
+        caffeinatePreventDisplaySleep = Self.onUnlessStored(defaults, Key.caffeinatePreventDisplaySleep)
+        caffeinatePreventSystemSleep = Self.onUnlessStored(defaults, Key.caffeinatePreventSystemSleep)
+        caffeinatePreventDiskSleep = defaults.bool(forKey: Key.caffeinatePreventDiskSleep.rawValue)
+        caffeinateShowsMenuBar = Self.onUnlessStored(defaults, Key.caffeinateShowsMenuBar)
         settingsFileEnabled = defaults.bool(forKey: Key.settingsFileEnabled.rawValue)
     }
 }

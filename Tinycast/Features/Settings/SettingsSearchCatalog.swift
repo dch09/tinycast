@@ -218,10 +218,22 @@ enum SettingsSearchCatalog {
     private static let commands: [SettingsSearchEntry] = [
         .init(
             pane: .commands,
-            keywords: ["custom", "script", "shell", "terminal"]),
+            keywords: ["custom", "script", "shell", "terminal", "caffeinate", "coffee", "sleep"]),
         .init(
             .commandsCommands, "Enable Commands",
             keywords: ["hide", "visibility"]),
+        .init(
+            .commandsCaffeinate, "Prevent display sleep",
+            keywords: ["caffeinate", "coffee", "awake", "screen"]),
+        .init(
+            .commandsCaffeinate, "Prevent system sleep",
+            keywords: ["caffeinate", "coffee", "idle", "sleep"]),
+        .init(
+            .commandsCaffeinate, "Prevent disk sleep",
+            keywords: ["caffeinate", "disk", "power"]),
+        .init(
+            .commandsCaffeinate, "Show in menu bar",
+            keywords: ["caffeinate", "coffee", "cup", "status"]),
         .init(
             .commandsCustomCommands, "Enable custom commands",
             keywords: ["script", "shell"]),

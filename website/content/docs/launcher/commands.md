@@ -24,7 +24,7 @@ and only appear while the feature is on. The rest are in **Settings → Commands
 | [Window Management](/docs/features/window-layouts) | Create Window Layout · Create Layout from Current Windows · Switch Room · Create Room                                                                                                              |
 | [Quicklinks](/docs/launcher/quicklinks)            | Create Quicklink · Search Quicklinks · Import Quicklinks · Export Quicklinks                                                                                                                       |
 | [Snippets](/docs/features/snippets)                | Search Snippets · Create Snippet                                                                                                                                                                   |
-| Commands                                           | Calculator History · [Define Word](/docs/features/dictionary) · [Open Camera](/docs/features/camera) · Export Backup · Import Backup · Import from Raycast · Check for Updates · Tinycast Settings · About Tinycast · Support Tinycast · Quit Tinycast |
+| Commands                                           | Calculator History · [Define Word](/docs/features/dictionary) · [Open Camera](/docs/features/camera) · [Caffeinate](/docs/features/caffeinate) · Decaffeinate · Toggle Caffeinate · Caffeinate for… · Caffeinate Until · Caffeinate While · Caffeinate Status · Export Backup · Import Backup · Import from Raycast · Check for Updates · Tinycast Settings · About Tinycast · Support Tinycast · Quit Tinycast |
 
 **Create Custom Command** and **Search Custom Commands** are also in **Settings → Commands**, under
 Custom Commands. They follow **Enable custom commands**.

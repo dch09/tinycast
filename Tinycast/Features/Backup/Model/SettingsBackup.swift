@@ -96,6 +96,10 @@ struct SettingsBackup: Codable {
         var hideCurrentEvent: Int?
         // Safe to carry: it silences a prompt rather than granting anything.
         var supportReminders: Bool?
+        var caffeinatePreventDisplaySleep: Bool?
+        var caffeinatePreventSystemSleep: Bool?
+        var caffeinatePreventDiskSleep: Bool?
+        var caffeinateShowsMenuBar: Bool?
     }
 
     struct HotkeyBackup: Codable {
@@ -202,7 +206,11 @@ extension SettingsBackup {
             menuBarLinkedEventsOnly: s.menuBarLinkedEventsOnly,
             calendarMenuBarHidesWhenEmpty: s.calendarMenuBarHidesWhenEmpty,
             hideCurrentEvent: s.hideCurrentEvent.rawValue,
-            supportReminders: s.supportRemindersEnabled)
+            supportReminders: s.supportRemindersEnabled,
+            caffeinatePreventDisplaySleep: s.caffeinatePreventDisplaySleep,
+            caffeinatePreventSystemSleep: s.caffeinatePreventSystemSleep,
+            caffeinatePreventDiskSleep: s.caffeinatePreventDiskSleep,
+            caffeinateShowsMenuBar: s.caffeinateShowsMenuBar)
 
         let hk = core.hotKeys
         var hotkeys = HotkeyBackup()
@@ -582,6 +590,22 @@ extension SettingsBackup {
         }
         if let flag = s.supportReminders {
             settings.supportRemindersEnabled = flag
+            count += 1
+        }
+        if let flag = s.caffeinatePreventDisplaySleep {
+            settings.caffeinatePreventDisplaySleep = flag
+            count += 1
+        }
+        if let flag = s.caffeinatePreventSystemSleep {
+            settings.caffeinatePreventSystemSleep = flag
+            count += 1
+        }
+        if let flag = s.caffeinatePreventDiskSleep {
+            settings.caffeinatePreventDiskSleep = flag
+            count += 1
+        }
+        if let flag = s.caffeinateShowsMenuBar {
+            settings.caffeinateShowsMenuBar = flag
             count += 1
         }
         return count

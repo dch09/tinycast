@@ -126,6 +126,8 @@ struct RootPaletteView: View {
                 vm: vm, openActions: openActions, metrics: metrics)
         case .dictionary:
             return DictionaryScreen(session: dictionary, core: core, vm: vm)
+        case .caffeinate:
+            return CaffeineScreen(coordinator: core.caffeineCoordinator, vm: vm)
         case .calculatorHistory:
             return CalculatorHistoryScreen(
                 history: calcHistory, currencyRates: currencyRates, core: core, vm: vm,
@@ -929,6 +931,7 @@ struct RootPaletteView: View {
         if vm.mode == .extensionCommand, let placeholder = extensionScreen.searchPlaceholder {
             return placeholder
         }
+        if vm.mode == .caffeinate { return core.caffeineCoordinator.searchPrompt }
         return vm.mode.placeholder
     }
 
